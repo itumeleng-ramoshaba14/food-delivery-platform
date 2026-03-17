@@ -1,0 +1,19 @@
+package com.metamorph.delivery.order.entity;
+
+public enum OrderEventType {
+    ORDER_PLACED,
+    PAYMENT_AUTHORIZED,
+    RESTAURANT_ACCEPTED,
+    RESTAURANT_REJECTED,
+    PREPARING,
+    READY,
+    DRIVER_ASSIGNED,
+    DRIVER_ARRIVED_PICKUP,
+    PICKED_UP,
+    EN_ROUTE,
+    DRIVER_ARRIVED_DROPOFF,
+    DELIVERED,
+    CANCELLED,
+    REFUND_INITIATED,
+    REFUND_COMPLETED
+}

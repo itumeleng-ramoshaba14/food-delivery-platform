@@ -1,0 +1,398 @@
+import { Order, MenuItem, MenuCategory, Restaurant, PayoutRecord, DailyStats } from '@/types';
+
+export const mockRestaurant: Restaurant = {
+  id: 'rest-001',
+  name: "Nando's Sandton",
+  description: "Flame-grilled PERi-PERi chicken restaurant. Famous for our legendary flame-grilled PERi-PERi chicken.",
+  cuisine: "Portuguese / Afro-Portuguese",
+  phone: "+27 11 784 2301",
+  email: "sandton@nandos.co.za",
+  address: "Shop 12, Nelson Mandela Square, Sandton City, Johannesburg, 2196",
+  imageUrl: "https://via.placeholder.com/200x200?text=Nandos",
+  isOnline: true,
+  isPaused: false,
+  operatingHours: [
+    { day: 'Monday', open: '10:00', close: '22:00', closed: false },
+    { day: 'Tuesday', open: '10:00', close: '22:00', closed: false },
+    { day: 'Wednesday', open: '10:00', close: '22:00', closed: false },
+    { day: 'Thursday', open: '10:00', close: '22:00', closed: false },
+    { day: 'Friday', open: '10:00', close: '23:00', closed: false },
+    { day: 'Saturday', open: '09:00', close: '23:00', closed: false },
+    { day: 'Sunday', open: '09:00', close: '21:00', closed: false },
+  ],
+  minimumOrder: 80,
+  commissionRate: 15,
+  rating: 4.6,
+  totalOrders: 12847,
+  bankDetails: {
+    bankName: 'FNB',
+    accountNumber: '****4521',
+    branchCode: '250655',
+  },
+};
+
+export const mockCategories: MenuCategory[] = [
+  { id: 'cat-1', name: 'Chicken', description: 'Our legendary flame-grilled PERi-PERi chicken', sortOrder: 1, active: true },
+  { id: 'cat-2', name: 'Burgers & Wraps', description: 'Chicken burgers and wraps with PERi-PERi', sortOrder: 2, active: true },
+  { id: 'cat-3', name: 'Starters & Sharing', description: 'Perfect for sharing with friends', sortOrder: 3, active: true },
+  { id: 'cat-4', name: 'Sides', description: 'Complete your meal with our sides', sortOrder: 4, active: true },
+  { id: 'cat-5', name: 'Drinks & Desserts', description: 'Refreshing drinks and sweet treats', sortOrder: 5, active: true },
+];
+
+export const mockMenuItems: MenuItem[] = [
+  // Chicken
+  {
+    id: 'item-1', name: '1/4 Chicken', description: 'A quarter of our famous flame-grilled PERi-PERi chicken', price: 64.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Quarter', categoryId: 'cat-1', available: true, preparationTime: 12,
+    modifierGroups: [
+      { id: 'mg-1', name: 'PERi-PERi Flavour', required: true, maxSelections: 1, options: [
+        { id: 'mo-1', name: 'Plain...ish', price: 0 }, { id: 'mo-2', name: 'Lemon & Herb', price: 0 },
+        { id: 'mo-3', name: 'Medium', price: 0 }, { id: 'mo-4', name: 'Hot', price: 0 },
+        { id: 'mo-5', name: 'Extra Hot', price: 0 },
+      ]},
+      { id: 'mg-2', name: 'Add a Side', required: false, maxSelections: 2, options: [
+        { id: 'mo-6', name: 'PERi Chips', price: 29.90 }, { id: 'mo-7', name: 'Coleslaw', price: 22.90 },
+        { id: 'mo-8', name: 'Garlic Bread', price: 26.90 },
+      ]},
+    ],
+  },
+  {
+    id: 'item-2', name: '1/2 Chicken', description: 'Half a flame-grilled PERi-PERi chicken', price: 99.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Half', categoryId: 'cat-1', available: true, preparationTime: 15,
+    modifierGroups: [
+      { id: 'mg-3', name: 'PERi-PERi Flavour', required: true, maxSelections: 1, options: [
+        { id: 'mo-9', name: 'Lemon & Herb', price: 0 }, { id: 'mo-10', name: 'Medium', price: 0 },
+        { id: 'mo-11', name: 'Hot', price: 0 }, { id: 'mo-12', name: 'Extra Hot', price: 0 },
+      ]},
+    ],
+  },
+  {
+    id: 'item-3', name: 'Full Chicken', description: 'Whole flame-grilled PERi-PERi chicken to share', price: 179.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Full', categoryId: 'cat-1', available: true, preparationTime: 20,
+    modifierGroups: [
+      { id: 'mg-4', name: 'PERi-PERi Flavour', required: true, maxSelections: 1, options: [
+        { id: 'mo-13', name: 'Lemon & Herb', price: 0 }, { id: 'mo-14', name: 'Medium', price: 0 },
+        { id: 'mo-15', name: 'Hot', price: 0 },
+      ]},
+    ],
+  },
+  {
+    id: 'item-4', name: 'Chicken Butterfly', description: 'Boneless butterfly breast, flame-grilled', price: 89.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Butterfly', categoryId: 'cat-1', available: true, preparationTime: 14,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-5', name: '3 Chicken Wings', description: 'Three flame-grilled chicken wings', price: 49.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Wings', categoryId: 'cat-1', available: true, preparationTime: 10,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-6', name: 'Chicken Espetada', description: 'Chicken pieces on a skewer with peppers and onions', price: 109.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Espetada', categoryId: 'cat-1', available: false, preparationTime: 18,
+    modifierGroups: [],
+  },
+  // Burgers & Wraps
+  {
+    id: 'item-7', name: 'Chicken Burger', description: 'Grilled chicken breast in a toasted bun', price: 79.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Burger', categoryId: 'cat-2', available: true, preparationTime: 10,
+    modifierGroups: [
+      { id: 'mg-5', name: 'Extras', required: false, maxSelections: 3, options: [
+        { id: 'mo-16', name: 'Cheese', price: 12.90 }, { id: 'mo-17', name: 'Avo', price: 15.90 },
+        { id: 'mo-18', name: 'Halloumi', price: 18.90 },
+      ]},
+    ],
+  },
+  {
+    id: 'item-8', name: 'Double Chicken Burger', description: 'Two grilled chicken breasts stacked', price: 109.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=DoubleBurger', categoryId: 'cat-2', available: true, preparationTime: 12,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-9', name: 'Chicken Wrap', description: 'Grilled chicken in a soft tortilla wrap', price: 74.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Wrap', categoryId: 'cat-2', available: true, preparationTime: 8,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-10', name: 'Veggie Burger', description: 'Plant-based patty with fresh toppings', price: 84.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=VegBurger', categoryId: 'cat-2', available: true, preparationTime: 10,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-11', name: 'The Boss Burger', description: 'Topped with halloumi cheese, avo and PERi relish', price: 119.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Boss', categoryId: 'cat-2', available: true, preparationTime: 12,
+    modifierGroups: [],
+  },
+  // Starters & Sharing
+  {
+    id: 'item-12', name: 'Chicken Livers', description: 'PERi-PERi chicken livers served with toasted bread', price: 59.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Livers', categoryId: 'cat-3', available: true, preparationTime: 12,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-13', name: 'Red Pepper Dip', description: 'Roasted red pepper dip with PERi-PERi drizzle', price: 42.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Dip', categoryId: 'cat-3', available: true, preparationTime: 5,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-14', name: 'Halloumi Sticks', description: 'Crumbed halloumi sticks with sweet chilli jam', price: 54.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Halloumi', categoryId: 'cat-3', available: true, preparationTime: 8,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-15', name: '10 Wing Platter', description: 'Ten flame-grilled wings to share', price: 149.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=WingPlatter', categoryId: 'cat-3', available: true, preparationTime: 15,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-16', name: 'Sharing Platter', description: 'Mixed platter with wings, espetada and halloumi', price: 239.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Platter', categoryId: 'cat-3', available: true, preparationTime: 20,
+    modifierGroups: [],
+  },
+  // Sides
+  {
+    id: 'item-17', name: 'PERi Chips', description: 'Crispy chips with PERi-PERi salt', price: 34.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Chips', categoryId: 'cat-4', available: true, preparationTime: 5,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-18', name: 'Spicy Rice', description: 'Fragrant spiced rice', price: 29.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Rice', categoryId: 'cat-4', available: true, preparationTime: 3,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-19', name: 'Coleslaw', description: 'Fresh and creamy coleslaw', price: 24.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Coleslaw', categoryId: 'cat-4', available: true, preparationTime: 2,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-20', name: 'Garlic Bread', description: 'Toasted garlic bread with PERi-PERi drizzle', price: 29.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=GarlicBread', categoryId: 'cat-4', available: true, preparationTime: 5,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-21', name: 'Corn on the Cob', description: 'Grilled corn with PERi-PERi butter', price: 27.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Corn', categoryId: 'cat-4', available: true, preparationTime: 5,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-22', name: 'Mediterranean Salad', description: 'Mixed leaves with feta, olives and peppers', price: 44.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Salad', categoryId: 'cat-4', available: true, preparationTime: 4,
+    modifierGroups: [],
+  },
+  // Drinks & Desserts
+  {
+    id: 'item-23', name: 'Bottomless Drink', description: 'Choice of Coke, Fanta, Sprite or juice', price: 34.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Drink', categoryId: 'cat-5', available: true, preparationTime: 1,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-24', name: 'PERi-Berry Juice', description: 'Our signature berry and PERi juice blend', price: 39.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Berry', categoryId: 'cat-5', available: true, preparationTime: 2,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-25', name: 'Water (500ml)', description: 'Still or sparkling water', price: 19.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Water', categoryId: 'cat-5', available: true, preparationTime: 1,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-26', name: 'Chocolate Brownie', description: 'Warm chocolate brownie with chocolate sauce', price: 44.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=Brownie', categoryId: 'cat-5', available: true, preparationTime: 5,
+    modifierGroups: [],
+  },
+  {
+    id: 'item-27', name: 'Frozen Yoghurt', description: 'Swirl of frozen yoghurt with caramel drizzle', price: 39.90,
+    imageUrl: 'https://via.placeholder.com/100x100?text=FroYo', categoryId: 'cat-5', available: true, preparationTime: 3,
+    modifierGroups: [],
+  },
+];
+
+const now = new Date();
+const minutesAgo = (m: number) => new Date(now.getTime() - m * 60000).toISOString();
+
+export const mockOrders: Order[] = [
+  {
+    id: 'ord-001', orderNumber: '#1247', customerName: 'Thabo Mokoena', customerPhone: '+27 72 345 6789',
+    items: [
+      { id: 'oi-1', name: '1/2 Chicken', quantity: 1, price: 99.90, modifiers: ['Hot'] },
+      { id: 'oi-2', name: 'PERi Chips', quantity: 1, price: 34.90 },
+      { id: 'oi-3', name: 'Bottomless Drink', quantity: 1, price: 34.90 },
+    ],
+    subtotal: 169.70, deliveryFee: 25.00, total: 194.70, status: 'new', createdAt: minutesAgo(2),
+    deliveryAddress: '45 Rivonia Rd, Sandton, 2196', customerNotes: 'Please include extra PERi-PERi sauce', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-002', orderNumber: '#1248', customerName: 'Naledi Dlamini', customerPhone: '+27 83 456 7890',
+    items: [
+      { id: 'oi-4', name: 'Chicken Burger', quantity: 2, price: 79.90, modifiers: ['Cheese', 'Avo'] },
+      { id: 'oi-5', name: 'Spicy Rice', quantity: 2, price: 29.90 },
+      { id: 'oi-6', name: 'Chocolate Brownie', quantity: 1, price: 44.90 },
+    ],
+    subtotal: 264.50, deliveryFee: 25.00, total: 289.50, status: 'new', createdAt: minutesAgo(5),
+    deliveryAddress: '12 Maude St, Sandton Central, 2196', paymentMethod: 'Cash',
+  },
+  {
+    id: 'ord-003', orderNumber: '#1249', customerName: 'James van der Merwe', customerPhone: '+27 76 567 8901',
+    items: [
+      { id: 'oi-7', name: 'Full Chicken', quantity: 1, price: 179.90, modifiers: ['Medium'] },
+      { id: 'oi-8', name: 'Garlic Bread', quantity: 2, price: 29.90 },
+      { id: 'oi-9', name: 'Coleslaw', quantity: 2, price: 24.90 },
+      { id: 'oi-10', name: 'PERi Chips', quantity: 2, price: 34.90 },
+    ],
+    subtotal: 359.30, deliveryFee: 0, total: 359.30, status: 'new', createdAt: minutesAgo(1),
+    deliveryAddress: '8 Alice Lane, Sandton, 2196', customerNotes: 'Gate code: #4521', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-004', orderNumber: '#1250', customerName: 'Priya Naidoo', customerPhone: '+27 61 678 9012',
+    items: [
+      { id: 'oi-11', name: '1/4 Chicken', quantity: 2, price: 64.90, modifiers: ['Lemon & Herb'] },
+      { id: 'oi-12', name: 'Mediterranean Salad', quantity: 1, price: 44.90 },
+    ],
+    subtotal: 174.70, deliveryFee: 25.00, total: 199.70, status: 'new', createdAt: minutesAgo(8),
+    deliveryAddress: '22 West St, Sandton, 2196', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-005', orderNumber: '#1245', customerName: 'Sipho Mthembu', customerPhone: '+27 79 789 0123',
+    items: [
+      { id: 'oi-13', name: 'Double Chicken Burger', quantity: 1, price: 109.90 },
+      { id: 'oi-14', name: 'PERi Chips', quantity: 1, price: 34.90 },
+      { id: 'oi-15', name: 'Bottomless Drink', quantity: 2, price: 34.90 },
+    ],
+    subtotal: 214.60, deliveryFee: 25.00, total: 239.60, status: 'accepted', createdAt: minutesAgo(18),
+    acceptedAt: minutesAgo(15), prepTime: 20, estimatedReady: minutesAgo(-5),
+    deliveryAddress: '3 Gwen Lane, Sandton, 2196', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-006', orderNumber: '#1244', customerName: 'Ayanda Zulu', customerPhone: '+27 82 890 1234',
+    items: [
+      { id: 'oi-16', name: 'Chicken Wrap', quantity: 3, price: 74.90 },
+      { id: 'oi-17', name: 'Halloumi Sticks', quantity: 1, price: 54.90 },
+    ],
+    subtotal: 279.60, deliveryFee: 25.00, total: 304.60, status: 'preparing', createdAt: minutesAgo(25),
+    acceptedAt: minutesAgo(22), prepTime: 15,
+    deliveryAddress: '15 Katherine St, Sandton, 2196', paymentMethod: 'Cash',
+  },
+  {
+    id: 'ord-007', orderNumber: '#1243', customerName: 'Michael Cohen', customerPhone: '+27 71 901 2345',
+    items: [
+      { id: 'oi-18', name: '10 Wing Platter', quantity: 1, price: 149.90, modifiers: ['Extra Hot'] },
+      { id: 'oi-19', name: 'PERi Chips', quantity: 2, price: 34.90 },
+      { id: 'oi-20', name: 'Garlic Bread', quantity: 1, price: 29.90 },
+    ],
+    subtotal: 249.60, deliveryFee: 25.00, total: 274.60, status: 'preparing', createdAt: minutesAgo(30),
+    acceptedAt: minutesAgo(27), prepTime: 20,
+    deliveryAddress: '7 Benmore Gardens, Sandton, 2196', customerNotes: 'Leave at reception', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-008', orderNumber: '#1242', customerName: 'Fatima Essop', customerPhone: '+27 84 012 3456',
+    items: [
+      { id: 'oi-21', name: 'Veggie Burger', quantity: 2, price: 84.90 },
+      { id: 'oi-22', name: 'Corn on the Cob', quantity: 2, price: 27.90 },
+    ],
+    subtotal: 225.60, deliveryFee: 25.00, total: 250.60, status: 'preparing', createdAt: minutesAgo(22),
+    acceptedAt: minutesAgo(19), prepTime: 15,
+    deliveryAddress: '29 Fredman Dr, Sandton, 2196', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-009', orderNumber: '#1241', customerName: 'Lerato Khumalo', customerPhone: '+27 73 123 4567',
+    items: [
+      { id: 'oi-23', name: 'The Boss Burger', quantity: 1, price: 119.90 },
+      { id: 'oi-24', name: 'Spicy Rice', quantity: 1, price: 29.90 },
+      { id: 'oi-25', name: 'Frozen Yoghurt', quantity: 1, price: 39.90 },
+    ],
+    subtotal: 189.70, deliveryFee: 25.00, total: 214.70, status: 'ready', createdAt: minutesAgo(40),
+    acceptedAt: minutesAgo(37), prepTime: 15,
+    deliveryAddress: '56 5th Ave, Sandton, 2196', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-010', orderNumber: '#1240', customerName: 'David Botha', customerPhone: '+27 65 234 5678',
+    items: [
+      { id: 'oi-26', name: '1/2 Chicken', quantity: 2, price: 99.90, modifiers: ['Lemon & Herb'] },
+      { id: 'oi-27', name: 'Coleslaw', quantity: 2, price: 24.90 },
+      { id: 'oi-28', name: 'PERi-Berry Juice', quantity: 2, price: 39.90 },
+    ],
+    subtotal: 329.40, deliveryFee: 0, total: 329.40, status: 'ready', createdAt: minutesAgo(45),
+    acceptedAt: minutesAgo(42), prepTime: 20,
+    deliveryAddress: '1 Merchant Place, Sandton, 2196', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-011', orderNumber: '#1239', customerName: 'Amahle Ndlovu', customerPhone: '+27 60 345 6789',
+    items: [
+      { id: 'oi-29', name: 'Chicken Livers', quantity: 1, price: 59.90 },
+      { id: 'oi-30', name: '1/4 Chicken', quantity: 1, price: 64.90, modifiers: ['Medium'] },
+      { id: 'oi-31', name: 'Garlic Bread', quantity: 1, price: 29.90 },
+    ],
+    subtotal: 154.70, deliveryFee: 25.00, total: 179.70, status: 'delivered', createdAt: minutesAgo(90),
+    acceptedAt: minutesAgo(87), prepTime: 15,
+    deliveryAddress: '14 Keyes Ave, Rosebank, 2196', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-012', orderNumber: '#1238', customerName: 'Craig Williams', customerPhone: '+27 74 456 7890',
+    items: [
+      { id: 'oi-32', name: 'Sharing Platter', quantity: 1, price: 239.90 },
+      { id: 'oi-33', name: 'Bottomless Drink', quantity: 4, price: 34.90 },
+    ],
+    subtotal: 379.50, deliveryFee: 25.00, total: 404.50, status: 'delivered', createdAt: minutesAgo(120),
+    acceptedAt: minutesAgo(117), prepTime: 25,
+    deliveryAddress: '30 Jellicoe Ave, Rosebank, 2196', paymentMethod: 'Cash',
+  },
+  {
+    id: 'ord-013', orderNumber: '#1246', customerName: 'Zanele Sithole', customerPhone: '+27 81 567 8901',
+    items: [
+      { id: 'oi-34', name: 'Chicken Butterfly', quantity: 2, price: 89.90, modifiers: ['Hot'] },
+      { id: 'oi-35', name: 'Mediterranean Salad', quantity: 1, price: 44.90 },
+      { id: 'oi-36', name: 'Water (500ml)', quantity: 2, price: 19.90 },
+    ],
+    subtotal: 264.50, deliveryFee: 25.00, total: 289.50, status: 'accepted', createdAt: minutesAgo(12),
+    acceptedAt: minutesAgo(10), prepTime: 15,
+    deliveryAddress: '18 Jan Smuts Ave, Rosebank, 2196', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-014', orderNumber: '#1251', customerName: 'Kagiso Modise', customerPhone: '+27 68 678 9012',
+    items: [
+      { id: 'oi-37', name: 'Red Pepper Dip', quantity: 1, price: 42.90 },
+      { id: 'oi-38', name: '3 Chicken Wings', quantity: 2, price: 49.90 },
+      { id: 'oi-39', name: 'PERi Chips', quantity: 1, price: 34.90 },
+    ],
+    subtotal: 177.60, deliveryFee: 25.00, total: 202.60, status: 'new', createdAt: minutesAgo(3),
+    deliveryAddress: '5 Tyrwhitt Ave, Rosebank, 2196', customerNotes: 'Ring doorbell twice', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-015', orderNumber: '#1237', customerName: 'Emma Joubert', customerPhone: '+27 85 789 0123',
+    items: [
+      { id: 'oi-40', name: '1/4 Chicken', quantity: 4, price: 64.90, modifiers: ['Lemon & Herb'] },
+      { id: 'oi-41', name: 'Spicy Rice', quantity: 4, price: 29.90 },
+      { id: 'oi-42', name: 'Bottomless Drink', quantity: 4, price: 34.90 },
+    ],
+    subtotal: 518.80, deliveryFee: 0, total: 518.80, status: 'cancelled', createdAt: minutesAgo(60),
+    deliveryAddress: '42 Oxford Rd, Rosebank, 2196', rejectReason: 'Customer requested cancellation', paymentMethod: 'Card',
+  },
+  {
+    id: 'ord-016', orderNumber: '#1252', customerName: 'Bongani Cele', customerPhone: '+27 62 890 1234',
+    items: [
+      { id: 'oi-43', name: 'Chicken Espetada', quantity: 1, price: 109.90 },
+      { id: 'oi-44', name: 'Garlic Bread', quantity: 1, price: 29.90 },
+    ],
+    subtotal: 139.80, deliveryFee: 25.00, total: 164.80, status: 'new', createdAt: minutesAgo(0),
+    deliveryAddress: '9 Bolton Rd, Parkwood, 2196', paymentMethod: 'Cash',
+  },
+];
+
+export const mockPayouts: PayoutRecord[] = [
+  { id: 'pay-1', period: '24 Feb - 2 Mar 2026', grossAmount: 48750.00, commission: 7312.50, netAmount: 41437.50, status: 'paid', paidAt: '2026-03-04' },
+  { id: 'pay-2', period: '17 Feb - 23 Feb 2026', grossAmount: 52340.00, commission: 7851.00, netAmount: 44489.00, status: 'paid', paidAt: '2026-02-25' },
+  { id: 'pay-3', period: '10 Feb - 16 Feb 2026', grossAmount: 45120.00, commission: 6768.00, netAmount: 38352.00, status: 'paid', paidAt: '2026-02-18' },
+  { id: 'pay-4', period: '3 Feb - 9 Feb 2026', grossAmount: 51890.00, commission: 7783.50, netAmount: 44106.50, status: 'paid', paidAt: '2026-02-11' },
+  { id: 'pay-5', period: '3 Mar - 6 Mar 2026', grossAmount: 18920.00, commission: 2838.00, netAmount: 16082.00, status: 'processing' },
+];
+
+export const mockDailyStats: DailyStats = {
+  totalOrders: 47,
+  revenue: 8945.60,
+  avgPrepTime: 16,
+  rating: 4.6,
+  activeOrders: 10,
+  newOrders: 6,
+  preparingOrders: 3,
+  readyOrders: 2,
+};
