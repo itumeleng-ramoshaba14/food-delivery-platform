@@ -1,5 +1,7 @@
-const API_BASE_URL = "http://localhost:8080";
-
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://food-delivery-platform-backend-ofq1.onrender.com";
+  
 type ApiResponse<T> = {
   success?: boolean;
   message?: string;
