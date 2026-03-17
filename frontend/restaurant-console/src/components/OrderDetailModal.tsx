@@ -28,7 +28,6 @@ export default function OrderDetailModal() {
             className="modal-content w-full max-w-lg mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
               <div>
                 <div className="flex items-center gap-3">
@@ -39,29 +38,37 @@ export default function OrderDetailModal() {
                   Placed {formatTimeAgo(order.createdAt)} · {formatTime(order.createdAt)}
                 </p>
               </div>
-              <button onClick={closeDetail} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <button
+                onClick={closeDetail}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
                 <X size={20} className="text-gray-400" />
               </button>
             </div>
 
-            {/* Customer Info */}
             <div className="p-5 border-b border-gray-100 bg-gray-50">
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex items-center gap-2">
                   <User size={14} className="text-gray-400" />
-                  <span className="text-sm font-medium">{order.customerName}</span>
+                  <span className="text-sm font-medium">{order.customerName || 'Customer'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone size={14} className="text-gray-400" />
-                  <span className="text-sm text-gray-600">{order.customerPhone}</span>
+                  <span className="text-sm text-gray-600">
+                    {order.customerPhone || 'No phone provided'}
+                  </span>
                 </div>
                 <div className="flex items-start gap-2 col-span-2">
                   <MapPin size={14} className="text-gray-400 mt-0.5" />
-                  <span className="text-sm text-gray-600">{order.deliveryAddress}</span>
+                  <span className="text-sm text-gray-600">
+                    {order.deliveryAddress || 'No delivery address provided'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CreditCard size={14} className="text-gray-400" />
-                  <span className="text-sm text-gray-600">{order.paymentMethod}</span>
+                  <span className="text-sm text-gray-600">
+                    {order.paymentMethod || 'Unknown'}
+                  </span>
                 </div>
                 {order.prepTime && (
                   <div className="flex items-center gap-2">
@@ -72,39 +79,41 @@ export default function OrderDetailModal() {
               </div>
             </div>
 
-            {/* Items */}
             <div className="p-5 border-b border-gray-100">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Order Items</h3>
-              <div className="space-y-3">
-                {order.items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                          {item.quantity}x
-                        </span>
-                        <span className="text-sm font-medium text-gray-900">{item.name}</span>
+              {order.items && order.items.length > 0 ? (
+                <div className="space-y-3">
+                  {order.items.map((item) => (
+                    <div key={item.id} className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                            {item.quantity}x
+                          </span>
+                          <span className="text-sm font-medium text-gray-900">{item.name}</span>
+                        </div>
+                        {item.modifiers && item.modifiers.length > 0 && (
+                          <p className="text-xs text-gray-500 ml-8 mt-0.5">
+                            {item.modifiers.join(', ')}
+                          </p>
+                        )}
+                        {item.specialInstructions && (
+                          <p className="text-xs text-amber-600 ml-8 mt-0.5 italic">
+                            ⚠ {item.specialInstructions}
+                          </p>
+                        )}
                       </div>
-                      {item.modifiers && item.modifiers.length > 0 && (
-                        <p className="text-xs text-gray-500 ml-8 mt-0.5">
-                          {item.modifiers.join(', ')}
-                        </p>
-                      )}
-                      {item.specialInstructions && (
-                        <p className="text-xs text-amber-600 ml-8 mt-0.5 italic">
-                          ⚠ {item.specialInstructions}
-                        </p>
-                      )}
+                      <span className="text-sm font-medium text-gray-700">
+                        {formatCurrency(item.price * item.quantity)}
+                      </span>
                     </div>
-                    <span className="text-sm font-medium text-gray-700">
-                      {formatCurrency(item.price * item.quantity)}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No item details available.</p>
+              )}
             </div>
 
-            {/* Customer Notes */}
             {order.customerNotes && (
               <div className="px-5 py-3 border-b border-gray-100 bg-amber-50">
                 <div className="flex items-start gap-2">
@@ -117,7 +126,6 @@ export default function OrderDetailModal() {
               </div>
             )}
 
-            {/* Totals */}
             <div className="p-5">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
