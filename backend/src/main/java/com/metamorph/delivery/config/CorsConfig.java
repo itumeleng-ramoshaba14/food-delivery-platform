@@ -24,7 +24,10 @@ public class CorsConfig {
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:3001",
                 "http://127.0.0.1:3002",
-                "http://127.0.0.1:3003"));
+                "http://127.0.0.1:3003",
+                "https://food-delivery-platform-customer.onrender.com",
+                "https://food-delivery-platform-restaurant.onrender.com",
+                "https://food-delivery-platform-driver.onrender.com"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setExposedHeaders(List.of("Authorization"));
