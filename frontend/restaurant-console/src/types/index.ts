@@ -11,6 +11,7 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  restaurantId: string;
   orderNumber: string;
   customerName: string;
   customerPhone: string;

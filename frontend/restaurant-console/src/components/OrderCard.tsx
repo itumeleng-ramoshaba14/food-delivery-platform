@@ -1,167 +1,190 @@
-'use client';
+import { create } from "zustand";
+import {
+  acceptRestaurantOrder,
+  getRestaurantOrders,
+  markOrderPreparing,
+  markOrderReady,
+  rejectRestaurantOrder,
+  RestaurantOrder,
+} from "@/lib/api";
+import { Order, OrderStatus } from "@/types";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Clock, User, MapPin, X } from 'lucide-react';
-import { Order } from '@/types';
-import { formatCurrency, formatTimeAgo } from '@/lib/utils';
-import StatusBadge from './StatusBadge';
-import PrepTimeSelector from './PrepTimeSelector';
-import { useOrdersStore } from '@/store/ordersStore';
-
-interface OrderCardProps {
-  order: Order;
+function mapBackendStatus(status: string): OrderStatus {
+  switch (status) {
+    case "PLACED":
+      return "new";
+    case "ACCEPTED":
+      return "accepted";
+    case "PREPARING":
+      return "preparing";
+    case "READY":
+      return "ready";
+    case "PICKED_UP":
+      return "picked_up";
+    case "DELIVERED":
+      return "delivered";
+    case "CANCELLED":
+      return "cancelled";
+    default:
+      return "new";
+  }
 }
 
-const REJECT_REASONS = [
-  'Too busy',
-  'Item unavailable',
-  'Kitchen closing',
-  'Cannot deliver to area',
-  'Other',
-];
-
-export default function OrderCard({ order }: OrderCardProps) {
-  const { acceptOrder, rejectOrder, updateStatus, openDetail } = useOrdersStore();
-  const [showPrepTime, setShowPrepTime] = useState(false);
-  const [showReject, setShowReject] = useState(false);
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="order-card mb-3"
-      onClick={() => openDetail(order)}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <span className="font-bold text-sm text-gray-900">{order.orderNumber}</span>
-        <StatusBadge status={order.status} />
-      </div>
-
-      <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-2">
-        <User size={12} />
-        <span>{order.customerName}</span>
-      </div>
-
-      <div className="space-y-1 mb-3">
-        {order.items.slice(0, 3).map((item) => (
-          <div key={item.id} className="flex justify-between text-xs">
-            <span className="text-gray-700">
-              {item.quantity}x {item.name}
-              {item.modifiers?.length ? (
-                <span className="text-gray-400 ml-1">({item.modifiers.join(', ')})</span>
-              ) : null}
-            </span>
-            <span className="text-gray-500">{formatCurrency(item.price * item.quantity)}</span>
-          </div>
-        ))}
-        {order.items.length > 3 && (
-          <p className="text-xs text-gray-400">+{order.items.length - 3} more items</p>
-        )}
-      </div>
-
-      <div className="flex items-center justify-between border-t border-gray-100 pt-2">
-        <div className="flex items-center gap-1 text-xs text-gray-400">
-          <Clock size={12} />
-          <span>{formatTimeAgo(order.createdAt)}</span>
-        </div>
-        <span className="font-bold text-sm text-gray-900">{formatCurrency(order.total)}</span>
-      </div>
-
-      {order.customerNotes && (
-        <div className="mt-2 p-2 bg-amber-50 rounded text-xs text-amber-700 border border-amber-100">
-          📝 {order.customerNotes}
-        </div>
-      )}
-
-      {/* Action buttons */}
-      {order.status === 'new' && !showPrepTime && !showReject && (
-        <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => setShowPrepTime(true)}
-            className="btn-success text-xs py-1.5 flex-1"
-          >
-            Accept
-          </button>
-          <button
-            onClick={() => setShowReject(true)}
-            className="btn-danger text-xs py-1.5"
-          >
-            Reject
-          </button>
-        </div>
-      )}
-
-      {order.status === 'new' && showPrepTime && (
-        <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-          <PrepTimeSelector
-            onSelect={(mins) => {
-              acceptOrder(order.id, mins);
-              setShowPrepTime(false);
-            }}
-            onCancel={() => setShowPrepTime(false)}
-          />
-        </div>
-      )}
-
-      {order.status === 'new' && showReject && (
-        <div className="mt-3 space-y-1.5" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold text-gray-600">Reason</span>
-            <button onClick={() => setShowReject(false)}>
-              <X size={14} className="text-gray-400" />
-            </button>
-          </div>
-          {REJECT_REASONS.map((reason) => (
-            <button
-              key={reason}
-              onClick={() => {
-                rejectOrder(order.id, reason);
-                setShowReject(false);
-              }}
-              className="block w-full text-left text-xs px-3 py-2 rounded-md bg-gray-50 hover:bg-red-50 hover:text-red-600 transition-colors"
-            >
-              {reason}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {(order.status === 'accepted') && (
-        <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => updateStatus(order.id, 'preparing')}
-            className="btn-primary text-xs py-1.5 w-full"
-          >
-            Start Preparing
-          </button>
-        </div>
-      )}
-
-      {order.status === 'preparing' && (
-        <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => updateStatus(order.id, 'ready')}
-            className="btn-success text-xs py-1.5 w-full"
-          >
-            ✓ Ready for Pickup
-          </button>
-          {order.prepTime && (
-            <div className="mt-1.5 text-center">
-              <span className="text-xs text-gray-400">Est. {order.prepTime}min prep</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {order.status === 'ready' && (
-        <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-          <MapPin size={12} />
-          Waiting for pickup
-        </div>
-      )}
-    </motion.div>
-  );
+function mapRestaurantOrderToOrder(
+  order: RestaurantOrder,
+  restaurantId: string
+): Order {
+  return {
+    id: order.id,
+    restaurantId,
+    orderNumber: order.id.slice(0, 8).toUpperCase(),
+    customerName: "Customer",
+    customerPhone: "",
+    items: [],
+    subtotal: order.totalAmount ?? 0,
+    deliveryFee: 0,
+    total: order.totalAmount ?? 0,
+    status: mapBackendStatus(order.status),
+    createdAt: order.placedAt,
+    acceptedAt: undefined,
+    prepTime: undefined,
+    estimatedReady: undefined,
+    deliveryAddress: "",
+    customerNotes: "",
+    paymentMethod: "Unknown",
+    rejectReason: undefined,
+  };
 }
+
+interface OrdersState {
+  orders: Order[];
+  selectedOrder: Order | null;
+  isDetailOpen: boolean;
+  loading: boolean;
+  error: string | null;
+
+  fetchOrders: (restaurantId: string) => Promise<void>;
+  setOrders: (orders: Order[]) => void;
+  selectOrder: (order: Order | null) => void;
+  openDetail: (order: Order) => void;
+  closeDetail: () => void;
+  acceptOrder: (
+    orderId: string,
+    prepTime: number,
+    restaurantId: string
+  ) => Promise<void>;
+  rejectOrder: (
+    orderId: string,
+    reason: string,
+    restaurantId: string
+  ) => Promise<void>;
+  markPreparing: (orderId: string, restaurantId: string) => Promise<void>;
+  markReady: (orderId: string, restaurantId: string) => Promise<void>;
+  clearError: () => void;
+}
+
+export const useOrdersStore = create<OrdersState>((set) => ({
+  orders: [],
+  selectedOrder: null,
+  isDetailOpen: false,
+  loading: false,
+  error: null,
+
+  fetchOrders: async (restaurantId: string) => {
+    try {
+      set({ loading: true, error: null });
+      const backendOrders = await getRestaurantOrders(restaurantId);
+      const orders = backendOrders.map((order) =>
+        mapRestaurantOrderToOrder(order, restaurantId)
+      );
+      set({ orders, loading: false });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to load orders";
+      set({ error: message, loading: false });
+    }
+  },
+
+  setOrders: (orders: Order[]) => set({ orders }),
+
+  selectOrder: (order: Order | null) => set({ selectedOrder: order }),
+
+  openDetail: (order: Order) =>
+    set({ selectedOrder: order, isDetailOpen: true }),
+
+  closeDetail: () => set({ isDetailOpen: false, selectedOrder: null }),
+
+  acceptOrder: async (
+    orderId: string,
+    prepTime: number,
+    restaurantId: string
+  ) => {
+    try {
+      set({ loading: true, error: null });
+      await acceptRestaurantOrder(orderId, prepTime);
+      const backendOrders = await getRestaurantOrders(restaurantId);
+      const orders = backendOrders.map((order) =>
+        mapRestaurantOrderToOrder(order, restaurantId)
+      );
+      set({ orders, loading: false });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to accept order";
+      set({ error: message, loading: false });
+    }
+  },
+
+  rejectOrder: async (
+    orderId: string,
+    reason: string,
+    restaurantId: string
+  ) => {
+    try {
+      set({ loading: true, error: null });
+      await rejectRestaurantOrder(orderId, reason);
+      const backendOrders = await getRestaurantOrders(restaurantId);
+      const orders = backendOrders.map((order) =>
+        mapRestaurantOrderToOrder(order, restaurantId)
+      );
+      set({ orders, loading: false });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to reject order";
+      set({ error: message, loading: false });
+    }
+  },
+
+  markPreparing: async (orderId: string, restaurantId: string) => {
+    try {
+      set({ loading: true, error: null });
+      await markOrderPreparing(orderId);
+      const backendOrders = await getRestaurantOrders(restaurantId);
+      const orders = backendOrders.map((order) =>
+        mapRestaurantOrderToOrder(order, restaurantId)
+      );
+      set({ orders, loading: false });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to mark preparing";
+      set({ error: message, loading: false });
+    }
+  },
+
+  markReady: async (orderId: string, restaurantId: string) => {
+    try {
+      set({ loading: true, error: null });
+      await markOrderReady(orderId);
+      const backendOrders = await getRestaurantOrders(restaurantId);
+      const orders = backendOrders.map((order) =>
+        mapRestaurantOrderToOrder(order, restaurantId)
+      );
+      set({ orders, loading: false });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to mark ready";
+      set({ error: message, loading: false });
+    }
+  },
+
+  clearError: () => set({ error: null }),
+}));
