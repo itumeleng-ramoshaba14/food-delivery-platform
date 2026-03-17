@@ -8,35 +8,32 @@ import { useOrdersStore } from "@/store/ordersStore";
 
 type DashboardStatus =
   | "ALL"
-  | "PLACED"
-  | "ACCEPTED"
-  | "PREPARING"
-  | "READY"
-  | "DRIVER_ASSIGNED"
-  | "PICKED_UP"
-  | "EN_ROUTE"
-  | "DELIVERED"
-  | "CANCELLED";
+  | "new"
+  | "accepted"
+  | "preparing"
+  | "ready"
+  | "picked_up"
+  | "delivered"
+  | "cancelled"
+  | "rejected";
 
 function statusBadgeClasses(status: string) {
   switch (status) {
-    case "PLACED":
+    case "new":
       return "bg-amber-100 text-amber-700 border-amber-200";
-    case "ACCEPTED":
+    case "accepted":
       return "bg-blue-100 text-blue-700 border-blue-200";
-    case "PREPARING":
+    case "preparing":
       return "bg-orange-100 text-orange-700 border-orange-200";
-    case "READY":
+    case "ready":
       return "bg-purple-100 text-purple-700 border-purple-200";
-    case "DRIVER_ASSIGNED":
-      return "bg-indigo-100 text-indigo-700 border-indigo-200";
-    case "PICKED_UP":
+    case "picked_up":
       return "bg-cyan-100 text-cyan-700 border-cyan-200";
-    case "EN_ROUTE":
-      return "bg-sky-100 text-sky-700 border-sky-200";
-    case "DELIVERED":
+    case "delivered":
       return "bg-green-100 text-green-700 border-green-200";
-    case "CANCELLED":
+    case "cancelled":
+      return "bg-red-100 text-red-700 border-red-200";
+    case "rejected":
       return "bg-red-100 text-red-700 border-red-200";
     default:
       return "bg-gray-100 text-gray-700 border-gray-200";
@@ -45,24 +42,22 @@ function statusBadgeClasses(status: string) {
 
 function statusLabel(status: string) {
   switch (status) {
-    case "PLACED":
+    case "new":
       return "Placed";
-    case "ACCEPTED":
+    case "accepted":
       return "Accepted";
-    case "PREPARING":
+    case "preparing":
       return "Preparing";
-    case "READY":
+    case "ready":
       return "Ready";
-    case "DRIVER_ASSIGNED":
-      return "Driver Assigned";
-    case "PICKED_UP":
+    case "picked_up":
       return "Picked Up";
-    case "EN_ROUTE":
-      return "En Route";
-    case "DELIVERED":
+    case "delivered":
       return "Delivered";
-    case "CANCELLED":
+    case "cancelled":
       return "Cancelled";
+    case "rejected":
+      return "Rejected";
     default:
       return status;
   }
@@ -132,12 +127,12 @@ export default function RestaurantHomePage() {
   const stats = useMemo(() => {
     return {
       all: orders.length,
-      placed: orders.filter((o) => o.status === "PLACED").length,
-      accepted: orders.filter((o) => o.status === "ACCEPTED").length,
-      preparing: orders.filter((o) => o.status === "PREPARING").length,
-      ready: orders.filter((o) => o.status === "READY").length,
-      delivered: orders.filter((o) => o.status === "DELIVERED").length,
-      cancelled: orders.filter((o) => o.status === "CANCELLED").length,
+      placed: orders.filter((o) => o.status === "new").length,
+      accepted: orders.filter((o) => o.status === "accepted").length,
+      preparing: orders.filter((o) => o.status === "preparing").length,
+      ready: orders.filter((o) => o.status === "ready").length,
+      delivered: orders.filter((o) => o.status === "delivered").length,
+      cancelled: orders.filter((o) => o.status === "cancelled").length,
     };
   }, [orders]);
 
@@ -271,9 +266,9 @@ export default function RestaurantHomePage() {
           </button>
 
           <button
-            onClick={() => setSelectedStatus("PLACED")}
+            onClick={() => setSelectedStatus("new")}
             className={`rounded-2xl p-5 text-left shadow-sm ring-1 transition ${
-              selectedStatus === "PLACED"
+              selectedStatus === "new"
                 ? "bg-amber-500 text-white ring-amber-500"
                 : "bg-white text-gray-900 ring-gray-200 hover:bg-gray-50"
             }`}
@@ -283,9 +278,9 @@ export default function RestaurantHomePage() {
           </button>
 
           <button
-            onClick={() => setSelectedStatus("ACCEPTED")}
+            onClick={() => setSelectedStatus("accepted")}
             className={`rounded-2xl p-5 text-left shadow-sm ring-1 transition ${
-              selectedStatus === "ACCEPTED"
+              selectedStatus === "accepted"
                 ? "bg-blue-500 text-white ring-blue-500"
                 : "bg-white text-gray-900 ring-gray-200 hover:bg-gray-50"
             }`}
@@ -295,9 +290,9 @@ export default function RestaurantHomePage() {
           </button>
 
           <button
-            onClick={() => setSelectedStatus("PREPARING")}
+            onClick={() => setSelectedStatus("preparing")}
             className={`rounded-2xl p-5 text-left shadow-sm ring-1 transition ${
-              selectedStatus === "PREPARING"
+              selectedStatus === "preparing"
                 ? "bg-orange-500 text-white ring-orange-500"
                 : "bg-white text-gray-900 ring-gray-200 hover:bg-gray-50"
             }`}
@@ -307,9 +302,9 @@ export default function RestaurantHomePage() {
           </button>
 
           <button
-            onClick={() => setSelectedStatus("READY")}
+            onClick={() => setSelectedStatus("ready")}
             className={`rounded-2xl p-5 text-left shadow-sm ring-1 transition ${
-              selectedStatus === "READY"
+              selectedStatus === "ready"
                 ? "bg-purple-500 text-white ring-purple-500"
                 : "bg-white text-gray-900 ring-gray-200 hover:bg-gray-50"
             }`}
@@ -319,9 +314,9 @@ export default function RestaurantHomePage() {
           </button>
 
           <button
-            onClick={() => setSelectedStatus("DELIVERED")}
+            onClick={() => setSelectedStatus("delivered")}
             className={`rounded-2xl p-5 text-left shadow-sm ring-1 transition ${
-              selectedStatus === "DELIVERED"
+              selectedStatus === "delivered"
                 ? "bg-green-500 text-white ring-green-500"
                 : "bg-white text-gray-900 ring-gray-200 hover:bg-gray-50"
             }`}
@@ -367,7 +362,7 @@ export default function RestaurantHomePage() {
                     <div>
                       <p className="text-sm font-medium text-gray-500">Order</p>
                       <h2 className="mt-2 break-all text-2xl font-bold text-gray-900">
-                        #{order.id}
+                        #{order.orderNumber}
                       </h2>
                     </div>
 
@@ -389,24 +384,24 @@ export default function RestaurantHomePage() {
                         Items & Total
                       </p>
                       <p className="mt-2 text-lg font-semibold text-gray-900">
-                        {order.itemCount} item{order.itemCount !== 1 ? "s" : ""}
+                        {order.items.length} item{order.items.length !== 1 ? "s" : ""}
                       </p>
-                      <p className="mt-1 text-gray-600">R{order.totalAmount}</p>
+                      <p className="mt-1 text-gray-600">R{order.total}</p>
                     </div>
 
                     <div>
                       <p className="text-sm font-medium text-gray-500">Placed</p>
                       <p className="mt-2 text-gray-900">
-                        {new Date(order.placedAt).toLocaleString()}
+                        {new Date(order.createdAt).toLocaleString()}
                       </p>
                       <p className="mt-1 text-sm text-gray-500">
-                        {order.restaurantName}
+                        {selectedRestaurant.name}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-3 xl:w-[280px] xl:justify-end">
-                    {order.status === "PLACED" && (
+                    {order.status === "new" && (
                       <>
                         <button
                           onClick={() =>
@@ -432,7 +427,7 @@ export default function RestaurantHomePage() {
                       </>
                     )}
 
-                    {order.status === "ACCEPTED" && (
+                    {order.status === "accepted" && (
                       <button
                         onClick={() =>
                           markPreparing(order.id, selectedRestaurant.id)
@@ -443,7 +438,7 @@ export default function RestaurantHomePage() {
                       </button>
                     )}
 
-                    {order.status === "PREPARING" && (
+                    {order.status === "preparing" && (
                       <button
                         onClick={() => markReady(order.id, selectedRestaurant.id)}
                         className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700"
@@ -452,17 +447,16 @@ export default function RestaurantHomePage() {
                       </button>
                     )}
 
-                    {(order.status === "READY" ||
-                      order.status === "DRIVER_ASSIGNED" ||
-                      order.status === "PICKED_UP" ||
-                      order.status === "EN_ROUTE" ||
-                      order.status === "DELIVERED") && (
+                    {(order.status === "ready" ||
+                      order.status === "picked_up" ||
+                      order.status === "delivered") && (
                       <div className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600">
                         Awaiting / handled by delivery flow
                       </div>
                     )}
 
-                    {order.status === "CANCELLED" && (
+                    {(order.status === "cancelled" ||
+                      order.status === "rejected") && (
                       <div className="rounded-xl bg-red-50 px-4 py-2 text-sm font-medium text-red-600">
                         Order cancelled
                       </div>
