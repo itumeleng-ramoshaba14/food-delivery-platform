@@ -17,9 +17,14 @@ type DashboardStatus =
   | "cancelled"
   | "rejected";
 
+function normalizeStatus(status: string) {
+  return status.toLowerCase();
+}
+
 function statusBadgeClasses(status: string) {
-  switch (status) {
+  switch (normalizeStatus(status)) {
     case "new":
+    case "placed":
       return "bg-amber-100 text-amber-700 border-amber-200";
     case "accepted":
       return "bg-blue-100 text-blue-700 border-blue-200";
@@ -27,12 +32,15 @@ function statusBadgeClasses(status: string) {
       return "bg-orange-100 text-orange-700 border-orange-200";
     case "ready":
       return "bg-purple-100 text-purple-700 border-purple-200";
+    case "driver_assigned":
+      return "bg-indigo-100 text-indigo-700 border-indigo-200";
     case "picked_up":
       return "bg-cyan-100 text-cyan-700 border-cyan-200";
+    case "en_route":
+      return "bg-sky-100 text-sky-700 border-sky-200";
     case "delivered":
       return "bg-green-100 text-green-700 border-green-200";
     case "cancelled":
-      return "bg-red-100 text-red-700 border-red-200";
     case "rejected":
       return "bg-red-100 text-red-700 border-red-200";
     default:
@@ -41,8 +49,9 @@ function statusBadgeClasses(status: string) {
 }
 
 function statusLabel(status: string) {
-  switch (status) {
+  switch (normalizeStatus(status)) {
     case "new":
+    case "placed":
       return "Placed";
     case "accepted":
       return "Accepted";
@@ -50,8 +59,12 @@ function statusLabel(status: string) {
       return "Preparing";
     case "ready":
       return "Ready";
+    case "driver_assigned":
+      return "Driver Assigned";
     case "picked_up":
       return "Picked Up";
+    case "en_route":
+      return "En Route";
     case "delivered":
       return "Delivered";
     case "cancelled":
@@ -127,18 +140,28 @@ export default function RestaurantHomePage() {
   const stats = useMemo(() => {
     return {
       all: orders.length,
-      placed: orders.filter((o) => o.status === "new").length,
-      accepted: orders.filter((o) => o.status === "accepted").length,
-      preparing: orders.filter((o) => o.status === "preparing").length,
-      ready: orders.filter((o) => o.status === "ready").length,
-      delivered: orders.filter((o) => o.status === "delivered").length,
-      cancelled: orders.filter((o) => o.status === "cancelled").length,
+      placed: orders.filter((o) => {
+        const s = normalizeStatus(String(o.status));
+        return s === "new" || s === "placed";
+      }).length,
+      accepted: orders.filter((o) => normalizeStatus(String(o.status)) === "accepted").length,
+      preparing: orders.filter((o) => normalizeStatus(String(o.status)) === "preparing").length,
+      ready: orders.filter((o) => normalizeStatus(String(o.status)) === "ready").length,
+      delivered: orders.filter((o) => normalizeStatus(String(o.status)) === "delivered").length,
+      cancelled: orders.filter((o) => {
+        const s = normalizeStatus(String(o.status));
+        return s === "cancelled" || s === "rejected";
+      }).length,
     };
   }, [orders]);
 
   const filteredOrders = useMemo(() => {
     if (selectedStatus === "ALL") return orders;
-    return orders.filter((order) => order.status === selectedStatus);
+    return orders.filter((order) => {
+      const s = normalizeStatus(String(order.status));
+      if (selectedStatus === "new") return s === "new" || s === "placed";
+      return s === selectedStatus;
+    });
   }, [orders, selectedStatus]);
 
   return (
@@ -362,7 +385,7 @@ export default function RestaurantHomePage() {
                     <div>
                       <p className="text-sm font-medium text-gray-500">Order</p>
                       <h2 className="mt-2 break-all text-2xl font-bold text-gray-900">
-                        #{order.orderNumber}
+                        #{order.orderNumber || order.id}
                       </h2>
                     </div>
 
@@ -371,10 +394,10 @@ export default function RestaurantHomePage() {
                       <div className="mt-2">
                         <span
                           className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${statusBadgeClasses(
-                            order.status
+                            String(order.status)
                           )}`}
                         >
-                          {statusLabel(order.status)}
+                          {statusLabel(String(order.status))}
                         </span>
                       </div>
                     </div>
@@ -401,7 +424,8 @@ export default function RestaurantHomePage() {
                   </div>
 
                   <div className="flex flex-wrap gap-3 xl:w-[280px] xl:justify-end">
-                    {order.status === "new" && (
+                    {(normalizeStatus(String(order.status)) === "new" ||
+                      normalizeStatus(String(order.status)) === "placed") && (
                       <>
                         <button
                           onClick={() =>
@@ -427,7 +451,7 @@ export default function RestaurantHomePage() {
                       </>
                     )}
 
-                    {order.status === "accepted" && (
+                    {normalizeStatus(String(order.status)) === "accepted" && (
                       <button
                         onClick={() =>
                           markPreparing(order.id, selectedRestaurant.id)
@@ -438,7 +462,7 @@ export default function RestaurantHomePage() {
                       </button>
                     )}
 
-                    {order.status === "preparing" && (
+                    {normalizeStatus(String(order.status)) === "preparing" && (
                       <button
                         onClick={() => markReady(order.id, selectedRestaurant.id)}
                         className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700"
@@ -447,16 +471,18 @@ export default function RestaurantHomePage() {
                       </button>
                     )}
 
-                    {(order.status === "ready" ||
-                      order.status === "picked_up" ||
-                      order.status === "delivered") && (
+                    {(normalizeStatus(String(order.status)) === "ready" ||
+                      normalizeStatus(String(order.status)) === "driver_assigned" ||
+                      normalizeStatus(String(order.status)) === "picked_up" ||
+                      normalizeStatus(String(order.status)) === "en_route" ||
+                      normalizeStatus(String(order.status)) === "delivered") && (
                       <div className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600">
                         Awaiting / handled by delivery flow
                       </div>
                     )}
 
-                    {(order.status === "cancelled" ||
-                      order.status === "rejected") && (
+                    {(normalizeStatus(String(order.status)) === "cancelled" ||
+                      normalizeStatus(String(order.status)) === "rejected") && (
                       <div className="rounded-xl bg-red-50 px-4 py-2 text-sm font-medium text-red-600">
                         Order cancelled
                       </div>
