@@ -49,13 +49,27 @@ export type BackendOrderStatus =
   | "DELIVERED"
   | "CANCELLED";
 
+export type RestaurantOrderItem = {
+  menuItemId?: string;
+  menuItemName: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal?: number;
+};
+
 export type RestaurantOrder = {
   id: string;
-  restaurantName: string;
+  restaurantName?: string;
   status: BackendOrderStatus;
+  subtotal?: number;
+  deliveryFee?: number;
   totalAmount: number;
-  itemCount: number;
+  itemCount?: number;
   placedAt: string;
+  items?: RestaurantOrderItem[];
+  publicOrderId?: string;
+  deliveryId?: string;
+  publicDeliveryId?: string;
 };
 
 type ApiEnvelope<T> = {

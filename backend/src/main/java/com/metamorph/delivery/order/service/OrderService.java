@@ -156,13 +156,18 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public Page<OrderSummaryResponse> getCustomerOrders(UUID userId, Pageable pageable) {
-        return orderRepository.findAll(pageable)
+        return orderRepository.findByCustomerIdOrderByPlacedAtDesc(userId, pageable)
                 .map(this::mapToSummaryResponse);
     }
 
     @Transactional(readOnly = true)
     public Page<OrderSummaryResponse> getRestaurantOrders(UUID restaurantId, OrderStatus status, Pageable pageable) {
-        return orderRepository.findAll(pageable)
+        if (status != null) {
+            return orderRepository.findByRestaurantIdAndStatusOrderByPlacedAtDesc(restaurantId, status, pageable)
+                    .map(this::mapToSummaryResponse);
+        }
+
+        return orderRepository.findByRestaurantIdOrderByPlacedAtDesc(restaurantId, pageable)
                 .map(this::mapToSummaryResponse);
     }
 
@@ -264,13 +269,15 @@ public class OrderService {
                     addressBuilder.append(line1);
                 }
                 if (!city.isBlank()) {
-                    if (addressBuilder.length() > 0)
+                    if (addressBuilder.length() > 0) {
                         addressBuilder.append(", ");
+                    }
                     addressBuilder.append(city);
                 }
                 if (!postalCode.isBlank()) {
-                    if (addressBuilder.length() > 0)
+                    if (addressBuilder.length() > 0) {
                         addressBuilder.append(" ");
+                    }
                     addressBuilder.append(postalCode);
                 }
 
@@ -317,7 +324,12 @@ public class OrderService {
     }
 
     private OrderSummaryResponse mapToSummaryResponse(Order order) {
-        int itemCount = order.getItems() != null ? order.getItems().size() : 0;
+        int itemCount = 0;
+        if (order.getItems() != null) {
+            for (OrderItem item : order.getItems()) {
+                itemCount += item.getQuantity() != null ? item.getQuantity() : 0;
+            }
+        }
 
         return OrderSummaryResponse.builder()
                 .id(order.getId())

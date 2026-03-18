@@ -356,119 +356,145 @@ export default function RestaurantHomePage() {
 
         <div className="grid gap-6">
           {selectedRestaurant &&
-            filteredOrders.map((order) => (
-              <div
-                key={order.id}
-                className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200"
-              >
-                <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-                  <div className="grid flex-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Order</p>
-                      <h2 className="mt-2 break-all text-2xl font-bold text-gray-900">
-                        #{order.orderNumber}
-                      </h2>
-                    </div>
+            filteredOrders.map((order) => {
+              const itemCount =
+                order.items?.reduce(
+                  (sum, item) => sum + (item.quantity ?? 0),
+                  0
+                ) ?? 0;
 
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Status</p>
-                      <div className="mt-2">
-                        <span
-                          className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${statusBadgeClasses(
-                            order.status
-                          )}`}
-                        >
-                          {statusLabel(order.status)}
-                        </span>
+              return (
+                <div
+                  key={order.id}
+                  className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200"
+                >
+                  <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="grid flex-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">
+                          Order
+                        </p>
+                        <h2 className="mt-2 break-all text-2xl font-bold text-gray-900">
+                          #{order.orderNumber}
+                        </h2>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">
+                          Status
+                        </p>
+                        <div className="mt-2">
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${statusBadgeClasses(
+                              order.status
+                            )}`}
+                          >
+                            {statusLabel(order.status)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">
+                          Items & Total
+                        </p>
+                        <p className="mt-2 text-lg font-semibold text-gray-900">
+                          {itemCount} item{itemCount !== 1 ? "s" : ""}
+                        </p>
+                        <p className="mt-1 text-gray-600">R{order.total}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">
+                          Placed
+                        </p>
+                        <p className="mt-2 text-gray-900">
+                          {new Date(order.createdAt).toLocaleString()}
+                        </p>
+                        <p className="mt-1 text-sm text-gray-500">
+                          {selectedRestaurant.name}
+                        </p>
                       </div>
                     </div>
 
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">
-                        Items & Total
-                      </p>
-                      <p className="mt-2 text-lg font-semibold text-gray-900">
-                        {order.items.length} item{order.items.length !== 1 ? "s" : ""}
-                      </p>
-                      <p className="mt-1 text-gray-600">R{order.total}</p>
-                    </div>
+                    <div className="flex flex-wrap gap-3 xl:w-[280px] xl:justify-end">
+                      {order.status === "new" && (
+                        <>
+                          <button
+                            onClick={() =>
+                              acceptOrder(order.id, 20, selectedRestaurant.id)
+                            }
+                            className="rounded-xl bg-green-600 px-4 py-2 font-semibold text-white transition hover:bg-green-700"
+                          >
+                            Accept
+                          </button>
 
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Placed</p>
-                      <p className="mt-2 text-gray-900">
-                        {new Date(order.createdAt).toLocaleString()}
-                      </p>
-                      <p className="mt-1 text-sm text-gray-500">
-                        {selectedRestaurant.name}
-                      </p>
-                    </div>
-                  </div>
+                          <button
+                            onClick={() =>
+                              rejectOrder(
+                                order.id,
+                                "Restaurant unavailable",
+                                selectedRestaurant.id
+                              )
+                            }
+                            className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-700"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      )}
 
-                  <div className="flex flex-wrap gap-3 xl:w-[280px] xl:justify-end">
-                    {order.status === "new" && (
-                      <>
+                      {order.status === "accepted" && (
                         <button
                           onClick={() =>
-                            acceptOrder(order.id, 20, selectedRestaurant.id)
+                            markPreparing(order.id, selectedRestaurant.id)
                           }
-                          className="rounded-xl bg-green-600 px-4 py-2 font-semibold text-white transition hover:bg-green-700"
+                          className="rounded-xl bg-orange-500 px-4 py-2 font-semibold text-white transition hover:bg-orange-600"
                         >
-                          Accept
+                          Mark Preparing
                         </button>
+                      )}
 
+                      {order.status === "preparing" && (
                         <button
                           onClick={() =>
-                            rejectOrder(
-                              order.id,
-                              "Restaurant unavailable",
-                              selectedRestaurant.id
-                            )
+                            markReady(order.id, selectedRestaurant.id)
                           }
-                          className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-700"
+                          className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700"
                         >
-                          Reject
+                          Mark Ready
                         </button>
-                      </>
-                    )}
+                      )}
 
-                    {order.status === "accepted" && (
-                      <button
-                        onClick={() =>
-                          markPreparing(order.id, selectedRestaurant.id)
-                        }
-                        className="rounded-xl bg-orange-500 px-4 py-2 font-semibold text-white transition hover:bg-orange-600"
-                      >
-                        Mark Preparing
-                      </button>
-                    )}
+                      {order.status === "ready" && (
+                        <div className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600">
+                          Waiting for driver pickup
+                        </div>
+                      )}
 
-                    {order.status === "preparing" && (
-                      <button
-                        onClick={() => markReady(order.id, selectedRestaurant.id)}
-                        className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700"
-                      >
-                        Mark Ready
-                      </button>
-                    )}
+                      {order.status === "picked_up" && (
+                        <div className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600">
+                          Picked up by driver
+                        </div>
+                      )}
 
-                    {(order.status === "ready" ||
-                      order.status === "picked_up" ||
-                      order.status === "delivered") && (
-                      <div className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600">
-                        Awaiting / handled by delivery flow
-                      </div>
-                    )}
+                      {order.status === "delivered" && (
+                        <div className="rounded-xl bg-green-50 px-4 py-2 text-sm font-medium text-green-700">
+                          Delivered
+                        </div>
+                      )}
 
-                    {(order.status === "cancelled" ||
-                      order.status === "rejected") && (
-                      <div className="rounded-xl bg-red-50 px-4 py-2 text-sm font-medium text-red-600">
-                        Order cancelled
-                      </div>
-                    )}
+                      {(order.status === "cancelled" ||
+                        order.status === "rejected") && (
+                        <div className="rounded-xl bg-red-50 px-4 py-2 text-sm font-medium text-red-600">
+                          Order cancelled
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
       </div>
     </main>

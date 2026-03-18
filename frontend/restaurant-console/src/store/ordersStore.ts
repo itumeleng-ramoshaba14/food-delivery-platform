@@ -30,20 +30,38 @@ function mapBackendStatus(status: string): OrderStatus {
   }
 }
 
+function buildPlaceholderItems(itemCount: number, totalAmount: number) {
+  if (!itemCount || itemCount <= 0) return [];
+
+  const unitPrice = totalAmount > 0 ? totalAmount / itemCount : 0;
+
+  return Array.from({ length: itemCount }, (_, index) => ({
+    id: `placeholder-item-${index + 1}`,
+    name: `Order item ${index + 1}`,
+    quantity: 1,
+    price: unitPrice,
+    modifiers: [],
+    specialInstructions: "",
+  }));
+}
+
 function mapRestaurantOrderToOrder(
   order: RestaurantOrder,
   restaurantId: string
 ): Order {
+  const totalAmount = order.totalAmount ?? 0;
+  const itemCount = order.itemCount ?? 0;
+
   return {
     id: order.id,
     restaurantId,
     orderNumber: order.id.slice(0, 8).toUpperCase(),
     customerName: "Customer",
     customerPhone: "",
-    items: [],
-    subtotal: order.totalAmount ?? 0,
+    items: buildPlaceholderItems(itemCount, totalAmount),
+    subtotal: totalAmount,
     deliveryFee: 0,
-    total: order.totalAmount ?? 0,
+    total: totalAmount,
     status: mapBackendStatus(order.status),
     createdAt: order.placedAt,
     acceptedAt: undefined,
