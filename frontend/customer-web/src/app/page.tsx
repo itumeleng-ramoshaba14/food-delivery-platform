@@ -1,8 +1,5 @@
-import { getRestaurants } from "@/lib/api";
-import RestaurantBrowser from "@/components/restaurant-browser";
+import { redirect } from "next/navigation";
 
-export default async function Home() {
-  const restaurants = await getRestaurants();
-
-  return <RestaurantBrowser restaurants={restaurants} />;
+export default function Home() {
+  redirect("/checkout");
 }
