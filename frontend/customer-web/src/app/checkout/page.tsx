@@ -29,7 +29,7 @@ export default function CheckoutPage() {
   };
 
   const [email, setEmail] = useState("test@test.com");
-  const [password, setPassword] = useState("password");
+  const [password, setPassword] = useState("12345678");
   const [deliveryAddressId, setDeliveryAddressId] = useState(
     DEFAULT_DELIVERY_ADDRESS_ID
   );

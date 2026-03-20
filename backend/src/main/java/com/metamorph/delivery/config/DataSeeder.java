@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DataSeeder {
 
-        private static final UUID TEST_ADDRESS_ID = UUID.fromString("8e33e2f9-2302-4157-8152-477b4458ca29");
+        private static final UUID TEST_ADDRESS_ID = UUID.fromString("98868900-79ca-40f3-a385-337b8afd370f");
 
         private final UserRepository userRepository;
         private final AddressRepository addressRepository;
