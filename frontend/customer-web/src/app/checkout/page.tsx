@@ -13,7 +13,7 @@ type StoreCartItem = {
   quantity: number;
 };
 
-const DEFAULT_DELIVERY_ADDRESS_ID = "8e33e2f9-2302-4157-8152-477b4458ca29";
+const DEFAULT_DELIVERY_ADDRESS_ID = "98868900-79ca-40f3-a385-337b8afd370f";
 
 function formatMoney(value: number) {
   return Number(value).toFixed(2);
